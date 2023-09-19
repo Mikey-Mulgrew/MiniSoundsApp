@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MiniSoundsCompose</string>
+    <string name="app_name">Mini Sounds App</string>
     <string name="placeholder_result">Data will be here!</string>
     <string name="loading">Loading</string>
     <string name="loading_failed">Failed to load</string>

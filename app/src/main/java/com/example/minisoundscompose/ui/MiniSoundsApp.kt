@@ -27,33 +27,34 @@ import androidx.navigation.compose.rememberNavController
 import com.example.minisoundscompose.R
 
 enum class MiniSoundsApp(@StringRes val title: Int) {
-    Start(title = R.string.app_name),
-    Config(title = R.string.config)
+    Start(title = R.string.app_name), Config(title = R.string.config)
 }
 
 @Composable
-fun MiniSoundsApp(remoteConfigViewModel: RemoteConfigViewModel = viewModel(), navController: NavHostController = rememberNavController()) {
+fun MiniSoundsApp(
+    remoteConfigViewModel: RemoteConfigViewModel = viewModel(),
+    navController: NavHostController = rememberNavController()
+) {
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = MiniSoundsApp.valueOf(
         backStackEntry?.destination?.route ?: MiniSoundsApp.Start.name
     )
 
-    Scaffold(
-        modifier = Modifier,
-        topBar = { MiniSoundsAppBar(currentScreen) }
-    ) { p ->
+    Scaffold(modifier = Modifier, topBar = { MiniSoundsAppBar(currentScreen) }) { p ->
         val uiState = remoteConfigViewModel.configUiState
-        NavHost(navController = navController, startDestination = MiniSoundsApp.Start.name, modifier = Modifier.padding(p)) {
+        NavHost(
+            navController = navController,
+            startDestination = MiniSoundsApp.Start.name,
+            modifier = Modifier.padding(p)
+        ) {
             composable(route = MiniSoundsApp.Start.name) {
                 SelectConfigScreen(onConfigButtonClicked = {
-                    remoteConfigViewModel.getRemoteConfig(
-                        it
-                    )
+                    remoteConfigViewModel.getRemoteConfig(it)
                     navController.navigate(MiniSoundsApp.Config.name)
                 })
             }
-            composable(route= MiniSoundsApp.Config.name) {
+            composable(route = MiniSoundsApp.Config.name) {
                 ConfigScreen(remoteConfig = uiState)
             }
         }
@@ -61,14 +62,12 @@ fun MiniSoundsApp(remoteConfigViewModel: RemoteConfigViewModel = viewModel(), na
 }
 
 
-
-
 @Composable
 fun MiniSoundsAppBar(currentScreen: MiniSoundsApp) {
-    TopAppBar(
-        modifier = Modifier
-            .height(96.dp)
-            .fillMaxWidth(),
+    TopAppBar(modifier = Modifier
+        .height(96.dp)
+        .fillMaxWidth()
+        .padding(top= 20.dp),
         elevation = 0.dp,
         backgroundColor = Color.Black,
         title = {
@@ -76,11 +75,11 @@ fun MiniSoundsAppBar(currentScreen: MiniSoundsApp) {
                 stringResource(currentScreen.title),
                 modifier = Modifier.fillMaxWidth(),
                 color = Color.White,
-                textAlign = TextAlign.Center, fontSize = 32.sp,
+                textAlign = TextAlign.Center,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily(Font(R.font.reith_sans)),
                 lineHeight = 40.sp
             )
-        }
-    )
+        })
 }
