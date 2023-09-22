@@ -19,6 +19,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -42,8 +44,7 @@ fun AliveScreen(
     modifier: Modifier = Modifier,
     rmsViewModel: RmsViewModel = viewModel()
 ) {
-    val uiState = rmsViewModel.rmsUiState
-    rmsViewModel.getRmsData()
+    val uiState by rmsViewModel.rmsUiState.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -54,7 +55,7 @@ fun AliveScreen(
         when (uiState) {
             is RmsUiState.Loading -> LoadingScreen(modifier = modifier.fillMaxSize())
             is RmsUiState.Success -> {
-                RmsContentList(rmsData = uiState.config, onPlayerClicked)
+                RmsContentList(rmsData = (uiState as RmsUiState.Success).config, onPlayerClicked)
             }
 
             is RmsUiState.Error -> ErrorScreen(modifier = modifier.fillMaxSize())
@@ -101,7 +102,9 @@ fun RmsItem(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(2.dp).fillMaxHeight()
+                modifier = Modifier
+                    .padding(2.dp)
+                    .fillMaxHeight()
             ) {
                 val img = buildIChefUrl(playableItem.imageUrl)
                 AsyncImage(

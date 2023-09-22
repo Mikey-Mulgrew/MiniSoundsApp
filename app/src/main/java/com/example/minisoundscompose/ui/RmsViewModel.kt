@@ -1,8 +1,5 @@
 package com.example.minisoundscompose.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minisoundscompose.data.JsonParser
@@ -23,13 +20,17 @@ sealed interface RmsUiState {
     data class Success(val config: RMS) : RmsUiState
     object Error : RmsUiState
     object Loading : RmsUiState
+
 }
 
 class RmsViewModel : ViewModel() {
-    var rmsUiState: RmsUiState by mutableStateOf(RmsUiState.Loading)
-        private set
+    private val _rmsUiState = MutableStateFlow<RmsUiState>(RmsUiState.Loading)
+    val rmsUiState: StateFlow<RmsUiState> = _rmsUiState.asStateFlow()
 
-    fun getRmsData() {
+    init {
+        getRmsData()
+    }
+    private fun getRmsData() {
         viewModelScope.launch {
             val client = MiniSoundsHttpClient()
             client.getString(
@@ -38,7 +39,7 @@ class RmsViewModel : ViewModel() {
                     Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         e.printStackTrace()
-                        rmsUiState = RmsUiState.Error
+                        _rmsUiState.value = RmsUiState.Error
                     }
 
                     override fun onResponse(call: Call, response: Response) {
@@ -47,7 +48,7 @@ class RmsViewModel : ViewModel() {
                             val responseString = response.body?.string() ?: return
                             val parser = JsonParser()
                             val rmsData = parser.parseRmsJsonString(responseString)
-                            rmsUiState = RmsUiState.Success(rmsData!!)
+                            _rmsUiState.value = RmsUiState.Success(rmsData!!)
                         }
                     }
                 })

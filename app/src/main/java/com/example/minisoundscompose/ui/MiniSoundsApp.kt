@@ -1,10 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.minisoundscompose.ui
 
-import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,7 +37,6 @@ enum class MiniSoundsApp(@StringRes val title: Int) {
     Start(title = R.string.app_name), Config(title = R.string.config), Player(title = R.string.player)
 }
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun MiniSoundsApp(
     remoteConfigViewModel: RemoteConfigViewModel = viewModel(),
@@ -48,9 +45,7 @@ fun MiniSoundsApp(
 ) {
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = MiniSoundsApp.valueOf(
-        backStackEntry?.destination?.route ?: MiniSoundsApp.Start.name
-    )
+
     val topBarState = rememberSaveable { (mutableStateOf(true))}
 
     when (backStackEntry?.destination?.route) {
@@ -67,7 +62,8 @@ fun MiniSoundsApp(
 
     Scaffold(modifier = Modifier, topBar = { if(topBarState.value) MiniSoundsAppBar() }) { p ->
         val configUiState = remoteConfigViewModel.configUiState
-        val rmsPlayingUiState = rmsViewModel.rmsPlayingUiState
+        val rmsPlayingUiState by rmsViewModel.rmsPlayingUiState.collectAsState()
+
         NavHost(
             navController = navController,
             startDestination = MiniSoundsApp.Start.name,
@@ -86,7 +82,7 @@ fun MiniSoundsApp(
                 })
             }
             composable(route = MiniSoundsApp.Player.name) {
-                SmpScreen(playableItem = rmsPlayingUiState.value)
+                SmpScreen(playableItem = rmsPlayingUiState)
             }
         }
     }
