@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minisoundscompose.data.MiniSoundsHttpClient
 import com.example.minisoundscompose.data.RemoteConfig
-import com.example.minisoundscompose.data.RemoteConfigJsonParser
+import com.example.minisoundscompose.data.JsonParser
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
@@ -27,7 +27,7 @@ class RemoteConfigViewModel: ViewModel() {
     fun getRemoteConfig(endpoint: String = "2.3.0/config.json") {
         viewModelScope.launch {
             val client = MiniSoundsHttpClient()
-            client.getString(endpoint, object:
+            client.getString(endpoint = endpoint, callback = object:
                 Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     e.printStackTrace()
@@ -38,7 +38,7 @@ class RemoteConfigViewModel: ViewModel() {
                     response.use {
                         if (!response.isSuccessful) throw IOException("Returned ${response.code} with message ${response.message}")
                         val responseString = response.body?.string() ?: return
-                        val parser = RemoteConfigJsonParser()
+                        val parser = JsonParser()
                         val remoteConfig = parser.parseRemoteConfigJsonString(responseString)
                         configUiState = ConfigUiState.Success(remoteConfig!!)
                     }

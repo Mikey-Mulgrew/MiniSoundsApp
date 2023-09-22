@@ -7,5 +7,6 @@
     <string name="killed">Killed Config</string>
     <string name="choose_config">Choose Config</string>
     <string name="config">Config</string>
+    <string name="player">Player</string>
 
 </resources>

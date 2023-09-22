@@ -1,16 +1,24 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class
+)
+
 package com.example.minisoundscompose.ui
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -25,14 +33,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.minisoundscompose.R
+import com.example.minisoundscompose.ui.components.SmpScreen
 
 enum class MiniSoundsApp(@StringRes val title: Int) {
-    Start(title = R.string.app_name), Config(title = R.string.config)
+    Start(title = R.string.app_name), Config(title = R.string.config), Player(title = R.string.player)
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun MiniSoundsApp(
     remoteConfigViewModel: RemoteConfigViewModel = viewModel(),
+    rmsViewModel: RmsViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
 
@@ -40,9 +51,23 @@ fun MiniSoundsApp(
     val currentScreen = MiniSoundsApp.valueOf(
         backStackEntry?.destination?.route ?: MiniSoundsApp.Start.name
     )
+    val topBarState = rememberSaveable { (mutableStateOf(true))}
 
-    Scaffold(modifier = Modifier, topBar = { MiniSoundsAppBar(currentScreen) }) { p ->
-        val uiState = remoteConfigViewModel.configUiState
+    when (backStackEntry?.destination?.route) {
+        MiniSoundsApp.Start.name -> {
+            topBarState.value = true
+        }
+        MiniSoundsApp.Config.name -> {
+            topBarState.value = true
+        }
+        MiniSoundsApp.Player.name -> {
+            topBarState.value = false
+        }
+    }
+
+    Scaffold(modifier = Modifier, topBar = { if(topBarState.value) MiniSoundsAppBar() }) { p ->
+        val configUiState = remoteConfigViewModel.configUiState
+        val rmsPlayingUiState = rmsViewModel.rmsPlayingUiState
         NavHost(
             navController = navController,
             startDestination = MiniSoundsApp.Start.name,
@@ -55,7 +80,13 @@ fun MiniSoundsApp(
                 })
             }
             composable(route = MiniSoundsApp.Config.name) {
-                ConfigScreen(remoteConfig = uiState)
+                ConfigScreen(remoteConfig = configUiState, onPlayerClicked = {
+                    rmsViewModel.setRmsPlaying(it)
+                    navController.navigate(MiniSoundsApp.Player.name)
+                })
+            }
+            composable(route = MiniSoundsApp.Player.name) {
+                SmpScreen(playableItem = rmsPlayingUiState.value)
             }
         }
     }
@@ -63,23 +94,21 @@ fun MiniSoundsApp(
 
 
 @Composable
-fun MiniSoundsAppBar(currentScreen: MiniSoundsApp) {
+fun MiniSoundsAppBar() {
     TopAppBar(modifier = Modifier
         .height(96.dp)
         .fillMaxWidth()
-        .padding(top= 20.dp),
-        elevation = 0.dp,
-        backgroundColor = Color.Black,
+        .padding(top = 20.dp),
         title = {
             Text(
-                stringResource(currentScreen.title),
+                stringResource(R.string.app_name),
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily(Font(R.font.reith_sans)),
-                lineHeight = 40.sp
+                lineHeight = 40.sp,
+                color = MaterialTheme.colorScheme.outline
             )
         })
 }
