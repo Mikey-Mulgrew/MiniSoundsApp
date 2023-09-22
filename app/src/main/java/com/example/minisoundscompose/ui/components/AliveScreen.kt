@@ -94,17 +94,18 @@ fun RmsItem(
             modifier = Modifier
                 .padding(12.dp)
                 .fillMaxWidth()
+                .fillMaxHeight()
         ) {
             StationDescription(playableItem)
             Spacer(modifier = Modifier.width(30.dp))
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.padding(2.dp).fillMaxHeight()
             ) {
                 val img = buildIChefUrl(playableItem.imageUrl)
                 AsyncImage(
-                    model = img, contentDescription = ""
+                    model = img, contentDescription = "", modifier = Modifier.fillMaxHeight()
                 )
             }
         }

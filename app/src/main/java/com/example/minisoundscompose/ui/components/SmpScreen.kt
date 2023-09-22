@@ -57,14 +57,14 @@ fun SmpScreen(playableItem: PlayableItem) {
             ProductVersion("0.0.1")
         )
             .forVpid(playableItem.id, object : AVStatisticsProvider {})
-            .with(MediaContentHoldingImage(buildIChefUrl(playableItem.imageUrl)))
+            .with(MediaContentHoldingImage(buildIChefUrl(playableItem.imageUrl, "320", "180")))
             .withAutoplay(true)
             .build()
 
         val viewGroup: ViewGroup = FrameLayout(context)
-        Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+        Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(it)){
             AndroidView(factory = {
-                viewGroup.layoutParams = ViewGroup.LayoutParams(1500, 750)
+                viewGroup.layoutParams = ViewGroup.LayoutParams(1600, 900)
                 viewGroup
             }, modifier = Modifier.padding(it))
         }
@@ -85,7 +85,7 @@ fun SmpAppBar(title: String) {
     TopAppBar(modifier = Modifier
         .height(96.dp)
         .fillMaxWidth()
-        .padding(),
+        .padding(12.dp),
         title = {
             Text(
                 title,
